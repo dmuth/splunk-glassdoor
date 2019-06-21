@@ -60,7 +60,6 @@ def parseHtml(soup):
 	for review in soup.find_all("li", {"class": "empReview"}):
 
 		row = {}
-		row["venue"] = venue
 		
 		#
 		# There is a timestamp available with seconds, but it's not
@@ -71,11 +70,13 @@ def parseHtml(soup):
 		date_time_obj = datetime.datetime.strptime(date, '%b %d, %Y')
 		row["date"] = date_time_obj.strftime("%Y-%m-%dT%H:%M:%S.000")
 
+		row["venue"] = venue
+
 		row["rating"] = review.find_all("span", {"class": "value-title"})[0]["title"]
 
 		text = review.find_all("div", {"class": "mt-md"})
-		row["pros"] = text[0].find_all("p")[1]
-		row["cons"] = text[1].find_all("p")[1]
+		row["pros"] = text[0].find_all("p")[1].text
+		row["cons"] = text[1].find_all("p")[1].text
 		row["advice_to_management"] = ""
 		if len(text) >= 3:
 			row["advice_to_management"] = text[2].find_all("p")[1].text
@@ -114,11 +115,25 @@ def getReviews(url):
 		next_page = soup.find_all("a", {"class": "pagination__ArrowStyle__nextArrow"})
 		url = url_base + next_page[0]["href"]
 
-		if next_page:
+		#
+		# Because even the last page has a "next page" link that you can
+		# click on, we have to check to see if we're on the last page
+		# or else we'll fetch empty pages forever.
+		#
+		current_page = soup.find_all("li", {"class": "pagination__PaginationStyle__current"})[0]
+		last_page = soup.find_all("li", {"class": "pagination__PaginationStyle__last"})[0]
+
+		if current_page == last_page:
+			logging.info("Yeah, we're on the last page.  Full stop.")
+			break
+
+		elif next_page:
 			logging.info("Found next page: {}".format(url))
+
 		else:
 			logging.info("No more pages found, bailing out!")
 			break
+
 
 	return(retval)
 
