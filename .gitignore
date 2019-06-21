@@ -1,0 +1,15 @@
+
+# Vim droppings
+*.swp
+*~
+
+# Ignore generated file
+user-prefs.conf
+
+
+# Ignore Splunk Lab
+splunk-data/
+logs/*
+!app/data
+
+

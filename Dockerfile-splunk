@@ -1,0 +1,11 @@
+#
+# Build our container that runs Splunk Lab with the pp addin
+#
+
+FROM dmuth1/splunk-lab-ml
+
+#
+# Copy in our application
+#
+COPY app/ /opt/splunk/etc/apps/splunk-glassdoor/default
+
