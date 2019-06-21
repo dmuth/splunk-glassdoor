@@ -112,13 +112,9 @@ def getReviews(url):
 		retval = retval + reviews
 
 		next_page = soup.find_all("a", {"class": "pagination__ArrowStyle__nextArrow"})
-		logging.info("TEST:")
-		logging.info(next_page[0]["href"])
 		url = url_base + next_page[0]["href"]
 
-		next_page = soup.find_all("a", {"class": "next"})
 		if next_page:
-			url = next_page[0]["href"]
 			logging.info("Found next page: {}".format(url))
 		else:
 			logging.info("No more pages found, bailing out!")
