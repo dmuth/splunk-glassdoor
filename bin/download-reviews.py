@@ -2,7 +2,8 @@
 #
 # Vim: :set tabstop=4
 #
-# Download the comments from 1 or more venues in Yelp and write them to stdout
+# Download the comments from 1 or more businesses in Glassdoor
+# and write them to one page per file
 #
 
 
@@ -25,9 +26,9 @@ logging.basicConfig(level = logging.INFO, format='%(asctime)s.%(msecs)03d: %(lev
 	)
 
 
-parser = argparse.ArgumentParser(description = "Download comments from a Yelp page")
+parser = argparse.ArgumentParser(description = "Download comments from a Glassdoor page")
 parser.add_argument('urls', metavar = 'URL', type = str, nargs = '+',
-                    help = '1 or more Yelp URLs to download the comments from')
+                    help = '1 or more Glassdoor URLs to download the comments from')
 
 args = parser.parse_args()
 
@@ -56,8 +57,8 @@ def parseHtml(soup):
 
 	retval = []
 
-	venue = soup.title.text.split(" | ")[0]
-	venue = re.sub("[^A-Za-z0-9 ]", "", venue)
+	business = soup.title.text.split(" | ")[0]
+	business = re.sub("[^A-Za-z0-9 ]", "", business)
 	
 	for review in soup.find_all("li", {"class": "empReview"}):
 
@@ -72,7 +73,7 @@ def parseHtml(soup):
 		date_time_obj = datetime.datetime.strptime(date, '%b %d, %Y')
 		row["date"] = date_time_obj.strftime("%Y-%m-%dT%H:%M:%S.000")
 
-		row["venue"] = venue
+		row["business"] = business
 
 		row["rating"] = review.find_all("span", {"class": "value-title"})[0]["title"]
 
@@ -128,7 +129,7 @@ def getFilenameFromUrl(url):
 
 
 #
-# Download the reviews from a particular venue and write them to a file for each page.
+# Download the reviews from a particular business and write them to a file for each page.
 # Additional pages of reviews will be followed.
 #
 def getReviews(url):
@@ -147,10 +148,15 @@ def getReviews(url):
 		filename = log_dir + "/" + getFilenameFromUrl(url)
 		filename_stop = filename + "-stop"
 
+		#
+		# We don't want to fetch pages if we can help it, so we
+		# write a stopfile when we've reached the end of the reviews.
+		# If we find it, we're done with reviews.
+		#
 		if os.path.exists(filename_stop):
 			logging.info("Stop file {} exists, stopping!".format(filename_stop))
 			break
-
+		
 		if os.path.exists(filename):
 			logging.info("File {} already exists, skipping!".format(filename))
 			page += 1
