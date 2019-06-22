@@ -1,0 +1,228 @@
+<form theme="dark">
+  <label>Glassdoor Business Report</label>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="field1" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>0</earliest>
+        <latest></latest>
+      </default>
+    </input>
+    <input type="dropdown" token="span" searchWhenChanged="true">
+      <label>Span</label>
+      <choice value="1y">1 Year</choice>
+      <choice value="6mon">6 Months</choice>
+      <choice value="3mon">3 Months</choice>
+      <choice value="1mon">1 Month</choice>
+      <choice value="1w">1 Week</choice>
+      <choice value="1d">1 Day</choice>
+      <default>1mon</default>
+      <initialValue>1mon</initialValue>
+    </input>
+    <input type="dropdown" token="business" searchWhenChanged="true">
+      <label>Business</label>
+      <fieldForLabel>business</fieldForLabel>
+      <fieldForValue>business</fieldForValue>
+      <search>
+        <query>index=main | table business | dedup business | sort business</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+    </input>
+    <input type="dropdown" token="min_word_length">
+      <label>Min Word Length</label>
+      <choice value="4">4</choice>
+      <choice value="5">5</choice>
+      <choice value="6">6</choice>
+      <default>4</default>
+    </input>
+    <input type="dropdown" token="min_word_count">
+      <label>Min Word Count</label>
+      <choice value="1">1</choice>
+      <choice value="2">2</choice>
+      <choice value="3">3</choice>
+      <choice value="4">4</choice>
+      <choice value="5">5</choice>
+      <choice value="10">10</choice>
+      <choice value="20">20</choice>
+      <default>5</default>
+    </input>
+    <input type="dropdown" token="max_num_tags">
+      <label>Max Num Tags</label>
+      <choice value="100">100</choice>
+      <choice value="200">200</choice>
+      <choice value="300">300</choice>
+      <choice value="400">400</choice>
+      <choice value="500">500</choice>
+      <default>200</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Business</title>
+      <single>
+        <search>
+          <query>index=main business="$business$" | head 1 | table business</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">50</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Rating Over Time</title>
+      <chart>
+        <search>
+          <query>index=main business="$business$"
+| timechart span=$span$ avg(rating) AS "Avg Rating" count(rating) AS "Num Ratings"</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.maximumNumber">5</option>
+        <option name="charting.axisY.minimumNumber">0</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">1</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">connect</option>
+        <option name="charting.chart.overlayFields">"Num Ratings"</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="charting.seriesColors">[0x228B22,0x0000FF]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Tag Cloud for Pros</title>
+      <viz type="wordcloud_app.wordcloud">
+        <search>
+          <query>index=main index=main business="$business$"
+| eval words=split(pros, " ")  | mvexpand words | table words
+| cleantext textfield=words keep_orig=f remove_stopwords=t term_min_len=$min_word_length$
+| stats count by words 
+| search count &gt;= $min_word_count$
+| sort -count | head $max_num_tags$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">hovert</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#222</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>Tag Cloud for Cons</title>
+      <viz type="wordcloud_app.wordcloud">
+        <search>
+          <query>index=main index=main business="$business$"
+| eval words=split(cons, " ")  | mvexpand words | table words
+| cleantext textfield=words keep_orig=f remove_stopwords=t term_min_len=$min_word_length$
+| stats count by words 
+| search count &gt;= $min_word_count$
+| sort -count | head $max_num_tags$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">hovert</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#222</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Most Recent Pros</title>
+      <table>
+        <search>
+          <query>index=main business="$business$" rating &gt;= 4 | eval Date=strftime(_time, "%Y-%m-%d") | head 5 | table Date pros | rename pros as Pros</query>
+          <earliest>0</earliest>
+          <latest></latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Most Recent Cons</title>
+      <table>
+        <search>
+          <query>index=main business="$business$" rating &lt;= 2 | eval Date=strftime(_time, "%Y-%m-%d") | head 5 | table Date cons | rename cons as Cons</query>
+          <earliest>0</earliest>
+          <latest></latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

@@ -1,0 +1,398 @@
+<form theme="dark">
+  <label>Demo of Different Tag Clouds</label>
+  <description>This dashboard is simply a demo of different tag cloud techniques</description>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="field1" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>0</earliest>
+        <latest></latest>
+      </default>
+    </input>
+    <input type="dropdown" token="business" searchWhenChanged="true">
+      <label>Business</label>
+      <fieldForLabel>business</fieldForLabel>
+      <fieldForValue>business</fieldForValue>
+      <search>
+        <query>index=main | table business | dedup business | sort business</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+    </input>
+    <input type="dropdown" token="min_word_length">
+      <label>Min Word Length</label>
+      <choice value="4">4</choice>
+      <choice value="5">5</choice>
+      <choice value="6">6</choice>
+      <default>4</default>
+    </input>
+    <input type="dropdown" token="min_word_count">
+      <label>Min Word Count</label>
+      <choice value="1">1</choice>
+      <choice value="2">2</choice>
+      <choice value="3">3</choice>
+      <choice value="4">4</choice>
+      <choice value="5">5</choice>
+      <choice value="10">10</choice>
+      <choice value="20">20</choice>
+      <default>5</default>
+    </input>
+    <input type="dropdown" token="max_num_tags">
+      <label>Max Num Tags</label>
+      <choice value="100">100</choice>
+      <choice value="200">200</choice>
+      <choice value="300">300</choice>
+      <choice value="400">400</choice>
+      <choice value="500">500</choice>
+      <default>200</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Tag Cloud for Positive Reviews (4+ Stars)</title>
+      <viz type="wordcloud_app.wordcloud">
+        <search>
+          <query>index=main business="$business$" rating &gt;= 4 
+| eval words=split(pros, " ") 
+| eval words=trim(words, " .,")
+| stats count by words 
+| search NOT (
+words="this" 
+OR words="about"
+OR words="also"
+OR words="been"
+OR words="could"
+OR words="from"
+OR words="even"
+OR words="have"
+OR words="here"
+OR words="it's"
+OR words="i've"
+OR words="just"
+OR words="like"
+OR words="more"
+OR words="only"
+OR words="other"
+OR words="really"
+OR words="some"
+OR words="that"
+OR words="the"
+OR words="their"
+OR words="there"
+OR words="they"
+OR words="were"
+OR words="will"
+OR words="with"
+OR words="what"
+OR words="when"
+OR words="which"
+OR words="would"
+OR words="very"
+OR words="you're"
+)
+| search NOT (words="*&amp;*" OR words="*;*")
+| eval len=len(words) |search len &gt;= $min_word_length$ AND count &gt;= $min_word_count$ |fields words count | sort -count | head $max_num_tags$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">hovert</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#222</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>Tag Cloud for Negative Reviews (&lt;4 stars)</title>
+      <viz type="wordcloud_app.wordcloud">
+        <search>
+          <query>index=main business="$business$" rating &lt; 4
+| eval words=split(cons, " ") 
+| eval words=trim(words, " .,")
+| stats count by words 
+| search NOT (
+words="this" 
+OR words="about"
+OR words="also"
+OR words="been"
+OR words="could"
+OR words="even"
+OR words="from"
+OR words="have"
+OR words="here"
+OR words="it's"
+OR words="i've"
+OR words="just"
+OR words="like"
+OR words="more"
+OR words="only"
+OR words="other"
+OR words="really"
+OR words="some"
+OR words="that"
+OR words="the"
+OR words="their"
+OR words="there"
+OR words="they"
+OR words="were"
+OR words="will"
+OR words="with"
+OR words="what"
+OR words="when"
+OR words="which"
+OR words="would"
+OR words="very"
+OR words="you're"
+)
+| search NOT (words="*&amp;*" OR words="*;*")
+| eval len=len(words) |search len &gt;= $min_word_length$ AND count &gt;= $min_word_count$ |fields words count | sort -count | head $max_num_tags$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">hovert</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#222</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>NLP Word Cloud for Positive Reviews (4+ Stars)</title>
+      <viz type="wordcloud_app.wordcloud">
+        <search>
+          <query>index=main business="$business$" rating &gt;= 4 
+| eval words=split(pros, " ") 
+| mvexpand words | table words
+| cleantext textfield="words" base_type=lemma_pos remove_stopwords=t  ngram_range=1-1 ngram_mix=t keep_orig=t term_min_len=$min_word_length$
+| eval pos_zip = mvzip(pos_tag,'words',",")
+| eval no_ne = mvfilter(!match(pos_zip,"NNPS?,"))
+| rex field=no_ne mode=sed "s/[^,]+,([a-z]+)/\1/"
+| eval "words" = no_ne |  stats count BY "words"
+| search "words"!="" AND count &gt;= $min_word_count$
+| sort -count |  fields "words" count 
+| head $max_num_tags$
+| rename "words" as "Top keywords"</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">hovert</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#222</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>NLP Word Cloud for Negative Reviews (&lt;4 stars)</title>
+      <viz type="wordcloud_app.wordcloud">
+        <search>
+          <query>index=main business="$business$" rating &lt; 4 
+| eval words=split(cons, " ") 
+| mvexpand words | table words
+| cleantext textfield="words" base_type=lemma_pos remove_stopwords=t  ngram_range=1-1 ngram_mix=t keep_orig=t term_min_len=$min_word_length$
+| eval pos_zip = mvzip(pos_tag,'words',",")
+| eval no_ne = mvfilter(!match(pos_zip,"NNPS?,"))
+| rex field=no_ne mode=sed "s/[^,]+,([a-z]+)/\1/"
+| eval "words" = no_ne |  stats count BY "words"
+| search "words"!="" AND count &gt;= $min_word_count$
+| sort -count |  fields "words" count 
+| head $max_num_tags$
+| rename "words" as "Top keywords"</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">hovert</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#222</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>NLP Entity Cloud for Positive Reviews (4+ Stars)</title>
+      <viz type="wordcloud_app.wordcloud">
+        <search>
+          <query>index=main business="$business$" rating &gt;= 4 
+| eval words=split(pros, " ") 
+| mvexpand words | table words
+| cleantext textfield="words" base_type=lemma_pos remove_stopwords=t  ngram_range=1-1 ngram_mix=t keep_orig=t term_min_len=$min_word_length$
+| eval pos_zip = mvzip(pos_tag,'words',",")
+| eval no_ne = mvfilter(!match(pos_zip,"NNPS?,"))
+| rex field=no_ne mode=sed "s/[^,]+,([a-z]+)/\1/"
+| eval "words" = no_ne | noop
+| eval ne = mvfilter(match(pos_zip,"NNPS?,"))
+| rex field=ne mode=sed "s/[^,]+,([a-z]+)/\1/"
+| stats count by ne
+| search count &gt;= $min_word_count$
+| sort -count |  head $max_num_tags$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">hovert</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#222</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>NLP Entity Cloud for Negative Reviews (&lt;4 stars)</title>
+      <viz type="wordcloud_app.wordcloud">
+        <search>
+          <query>index=main business="$business$" rating &lt; 4
+| eval words=split(cons, " ") 
+| mvexpand words | table words
+| cleantext textfield="words" base_type=lemma_pos remove_stopwords=t  ngram_range=1-1 ngram_mix=t keep_orig=t term_min_len=$min_word_length$
+| eval pos_zip = mvzip(pos_tag,'words',",")
+| eval no_ne = mvfilter(!match(pos_zip,"NNPS?,"))
+| rex field=no_ne mode=sed "s/[^,]+,([a-z]+)/\1/"
+| eval "words" = no_ne | noop
+| eval ne = mvfilter(match(pos_zip,"NNPS?,"))
+| rex field=ne mode=sed "s/[^,]+,([a-z]+)/\1/"
+| stats count by ne
+| search count &gt;= $min_word_count$
+| sort -count |  head $max_num_tags$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">hovert</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#222</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Vader Algorithm and Words with Positive Sentiment</title>
+      <viz type="wordcloud_app.wordcloud">
+        <search>
+          <query>index=main index=main business="$business$"
+| eval review=pros + " " + cons + " " + advice_to_management
+| vader textfield=review full_output=f
+| search sentiment &gt; 0
+| eval words=split(review, " ")  | mvexpand words | table words
+| cleantext textfield=words keep_orig=f remove_stopwords=t term_min_len=$min_word_length$
+| stats count by words 
+| search count &gt;= $min_word_count$
+| sort -count | head $max_num_tags$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">hovert</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#222</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>Vader Algorithm and Words with Negative Sentiment</title>
+      <viz type="wordcloud_app.wordcloud">
+        <search>
+          <query>index=main index=main business="$business$"
+| eval review=pros + " " + cons + " " + advice_to_management
+| vader textfield=review full_output=f
+| search sentiment &lt;= 0
+| eval words=split(review, " ")  | mvexpand words | table words
+| cleantext textfield=words keep_orig=f remove_stopwords=t term_min_len=$min_word_length$
+| stats count by words 
+| search count &gt;= $min_word_count$
+| sort -count | head $max_num_tags$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">hovert</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#222</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
+  </row>
+</form>
