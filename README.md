@@ -70,7 +70,8 @@ Also:
 
 ## Bugs
 
-- 
+- Sometimes you'll see a yellow exclamation point with the text "Field 'words' does not exist in the data" on the Advice Tag Cloud.  The underlying search appears to be executing normally, so I can trying to sort this one out.
+
 
 ## Copyright
 
