@@ -21,9 +21,9 @@ app I built to effortlessly run Splunk in a Docker container.
 
 # Screenshots
 
-<a href="img/bella-italia.png"><img src="img/bella-italia.png" width="250" /></a>
-<a href="img/iron-hill-brewary.png"><img src="img/iron-hill-brewary.png" width="250" /></a>
-<a href="img/john-henrys.png"><img src="img/john-henrys.png" width="250" /></a>
+<a href="img/facebook-glassdoor.png"><img src="img/facebook-glassdoor.png" width="250" alt="Facebook Glassdoor Reviews" /></a>
+<a href="img/netflix-glassdoor.png"><img src="img/netflix-glassdoor.png" width="250" alt="Netflix Glassdoor Reviews" /></a>
+<a href="img/qvc-glassdoor.png"><img src="img/qvc-glassdor.png" width="250" alt="QVC Glassdoor Reviews" /></a>
 
 
 ## Requirements
