@@ -58,6 +58,7 @@ def parseHtml(soup):
 	retval = []
 
 	business = soup.title.text.split(" | ")[0]
+	business = re.sub(' Reviews$', '', business)
 	business = re.sub("[^A-Za-z0-9 ]", "", business)
 	
 	for review in soup.find_all("li", {"class": "empReview"}):
