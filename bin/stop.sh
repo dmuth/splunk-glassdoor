@@ -10,6 +10,6 @@ set -e
 echo "# "
 echo "# Stopping Splunk"
 echo "# "
-docker kill splunk-yelp || true
+docker kill splunk-glassdoor || true
 
 

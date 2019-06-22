@@ -21,8 +21,8 @@ docker build . -f Dockerfile-splunk -t splunk-glassdoor
 echo "# "
 echo "# Tagging container..."
 echo "# "
-docker tag splunk-yelp-python dmuth1/splunk-glassdoor-python
-docker tag splunk-yelp dmuth1/splunk-glassdoor
+docker tag splunk-glassdoor-python dmuth1/splunk-glassdoor-python
+docker tag splunk-glassdoor dmuth1/splunk-glassdoor
 
 echo "# Done!"
 
