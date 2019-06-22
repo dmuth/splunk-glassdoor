@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Download a review
+# Download a URL full of reviews
 #
 
 # Errors are fatal
@@ -20,18 +20,5 @@ URL=$1
 
 THIS_DIR=$(dirname $0)
 
-TARGET=logs/$(echo $URL | sed -e "s/.*\///").json
-
-if test -f $TARGET
-then
-	echo "# Target '${TARGET}' exists, skipping..."
-
-else
-	TMP=$(mktemp)
-	$THIS_DIR/download-reviews.py $URL > $TMP
-	mv $TMP $TARGET
-
-fi
-
-
+$THIS_DIR/download-reviews.py $URL
 
