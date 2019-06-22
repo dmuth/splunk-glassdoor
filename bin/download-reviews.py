@@ -10,6 +10,7 @@ import argparse
 import datetime
 import json
 import logging
+import os
 import re
 import sys
 from urllib.parse import urlparse
@@ -30,13 +31,14 @@ parser.add_argument('urls', metavar = 'URL', type = str, nargs = '+',
 
 args = parser.parse_args()
 
+log_dir = os.path.dirname(os.path.realpath(__file__)) + "/../logs"
+
 
 #
 # Fetch a specific URL
 #
 def getHtml(url):
 
-	#r = requests.get(url)
 	headers = {
 		"User-Agent": "Splunk Glassdoor/1.0 http://github.com/dmuth"
 		}
@@ -117,17 +119,28 @@ def getUrlFromPage(url, page):
 
 
 #
-# Download the reviews from a particular venue.
-# Additional pages of reviews will be followed. 
+# Get a filename from our URL
+#
+def getFilenameFromUrl(url):
+
+	retval = re.sub('[^0-9a-zA-Z]+', '-', url)
+	return(retval)
+
+
+#
+# Download the reviews from a particular venue and write them to a file for each page.
+# Additional pages of reviews will be followed.
 #
 def getReviews(url):
 
-	retval = []
-
 	logging.info("Start URL: {}".format(url))
 
-	while True:
+	# Get current logfiles
+	files = os.listdir(log_dir)
 
+
+	while True:
+	
 		page = getPageFromUrl(url)
 		logging.info("Page: " + str(page))
 
@@ -138,15 +151,28 @@ def getReviews(url):
 		logging.info("Parsing URL: {}...".format(url))
 		reviews = parseHtml(soup)
 		logging.info("Fetched {} reviews".format(len(reviews)))
-		retval = retval + reviews
+
+		filename = log_dir + "/" + getFilenameFromUrl(url)
+		f = open(filename, "w")
+		for review in reviews:
+			f.write(json.dumps(review))
+		f.close()
+		logging.info("Wrote {} reviews to '{}'".format(len(reviews), filename))
 
 		#
 		# Because even the last page has a "next page" link that you can
 		# click on, we have to check to see if we're on the last page
 		# or else we'll fetch empty pages forever.
 		#
-		current_page = soup.find_all("li", {"class": "pagination__PaginationStyle__current"})[0]
-		last_page = soup.find_all("li", {"class": "pagination__PaginationStyle__last"})[0]
+		try:
+			current_page = soup.find_all("li", 
+				{"class": "pagination__PaginationStyle__current"})[0]
+			last_page = soup.find_all("li", 
+				{"class": "pagination__PaginationStyle__last"})[0]
+
+		except IndexError:
+			logging.info("Caught an IndexError on soup.find_all(), bailing out.  Feel free to try this script again!")
+			break
 
 		if current_page == last_page:
 			logging.info("Yeah, we're on the last page.  Full stop.")
@@ -158,16 +184,6 @@ def getReviews(url):
 		page += 1
 		url = getUrlFromPage(url, page)
 
-	return(retval)
-
-
-#
-# Print up our reviews as JSON, one event per line.
-#
-def printReviews(reviews):
-
-	for review in reviews:
-		print(json.dumps(review))
 
 
 #
@@ -176,10 +192,7 @@ def printReviews(reviews):
 def main(args):
 
 	for url in args.urls:
-		reviews = getReviews(url)
-		logging.info("Fetched {} reviews in total from URL {}".format(len(reviews), url))
-		printReviews(reviews)
-
+		getReviews(url)
 
 main(args)
 
