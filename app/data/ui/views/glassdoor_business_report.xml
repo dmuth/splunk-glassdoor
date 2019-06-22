@@ -277,4 +277,14 @@
       </table>
     </panel>
   </row>
+  <row>
+    <panel>
+      <title>About</title>
+      <html>
+      Splunk Glassdoor is the quick and easy way to graph Glassdoor reviews of companies.
+      
+      It can be found on the web at <a href="https://github.com/dmuth/splunk-glassdoor">https://github.com/dmuth/splunk-glassdoor</a>
+    </html>
+    </panel>
+  </row>
 </form>
