@@ -88,6 +88,35 @@ def parseHtml(soup):
 
 
 #
+# Get what page we're on from the URL 
+#
+def getPageFromUrl(url):
+
+	retval = 1
+
+	fields = url.split("_")
+	if len(fields) > 1:
+		fields = re.match(r'P([0-9]+)', fields[1])
+		return( int(fields.group(1)) )
+
+	return(retval)
+
+
+#
+# Take our start URL and a page number, generate a page's URL for it
+#
+def getUrlFromPage(url, page):
+
+	fields = re.match(r'(.*?)(_P[0-9]+)?(.htm)', url)
+	url_start = fields.group(1)
+	url_end = fields.group(3)
+
+	retval = url_start + "_P" + str(page) + url_end
+
+	return(retval)
+
+
+#
 # Download the reviews from a particular venue.
 # Additional pages of reviews will be followed. 
 #
@@ -95,13 +124,12 @@ def getReviews(url):
 
 	retval = []
 
-	#
-	# Grab the base URL since next page links are relative
-	#
-	parsed_uri = urlparse(url)
-	url_base = parsed_uri.scheme + "://" + parsed_uri.netloc
+	logging.info("Start URL: {}".format(url))
 
 	while True:
+
+		page = getPageFromUrl(url)
+		logging.info("Page: " + str(page))
 
 		logging.info("Fetching URL: {}...".format(url))
 		html = getHtml(url)
@@ -111,9 +139,6 @@ def getReviews(url):
 		reviews = parseHtml(soup)
 		logging.info("Fetched {} reviews".format(len(reviews)))
 		retval = retval + reviews
-
-		next_page = soup.find_all("a", {"class": "pagination__ArrowStyle__nextArrow"})
-		url = url_base + next_page[0]["href"]
 
 		#
 		# Because even the last page has a "next page" link that you can
@@ -127,13 +152,11 @@ def getReviews(url):
 			logging.info("Yeah, we're on the last page.  Full stop.")
 			break
 
-		elif next_page:
-			logging.info("Found next page: {}".format(url))
-
-		else:
-			logging.info("No more pages found, bailing out!")
-			break
-
+		#
+		# Guess we're going to the next page!
+		#
+		page += 1
+		url = getUrlFromPage(url, page)
 
 	return(retval)
 
