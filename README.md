@@ -23,7 +23,7 @@ app I built to effortlessly run Splunk in a Docker container.
 
 <a href="img/facebook-glassdoor.png"><img src="img/facebook-glassdoor.png" width="250" alt="Facebook Glassdoor Reviews" /></a>
 <a href="img/netflix-glassdoor.png"><img src="img/netflix-glassdoor.png" width="250" alt="Netflix Glassdoor Reviews" /></a>
-<a href="img/qvc-glassdoor.png"><img src="img/qvc-glassdor.png" width="250" alt="QVC Glassdoor Reviews" /></a>
+<a href="img/qvc-glassdoor.png"><img src="img/qvc-glassdoor.png" width="250" alt="QVC Glassdoor Reviews" /></a>
 
 
 ## Requirements
@@ -67,6 +67,10 @@ analytics platform, and the operational excellence which it embodies.
 Also:
 - <a href="https://www.ascii-art-generator.org/">This text to ASCII art generator</a>, for the logo I used in the script.
 
+
+## Bugs
+
+- 
 
 ## Copyright
 
