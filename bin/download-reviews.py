@@ -144,6 +144,19 @@ def getReviews(url):
 		page = getPageFromUrl(url)
 		logging.info("Page: " + str(page))
 
+		filename = log_dir + "/" + getFilenameFromUrl(url)
+		filename_stop = filename + "-stop"
+
+		if os.path.exists(filename_stop):
+			logging.info("Stop file {} exists, stopping!".format(filename_stop))
+			break
+
+		if os.path.exists(filename):
+			logging.info("File {} already exists, skipping!".format(filename))
+			page += 1
+			url = getUrlFromPage(url, page)
+			continue
+
 		logging.info("Fetching URL: {}...".format(url))
 		html = getHtml(url)
 		soup = BeautifulSoup(html, 'html.parser')
@@ -152,10 +165,9 @@ def getReviews(url):
 		reviews = parseHtml(soup)
 		logging.info("Fetched {} reviews".format(len(reviews)))
 
-		filename = log_dir + "/" + getFilenameFromUrl(url)
 		f = open(filename, "w")
 		for review in reviews:
-			f.write(json.dumps(review))
+			f.write(json.dumps(review) + "\n")
 		f.close()
 		logging.info("Wrote {} reviews to '{}'".format(len(reviews), filename))
 
@@ -171,11 +183,15 @@ def getReviews(url):
 				{"class": "pagination__PaginationStyle__last"})[0]
 
 		except IndexError:
-			logging.info("Caught an IndexError on soup.find_all(), bailing out.  Feel free to try this script again!")
+			logging.warn("Caught an IndexError on soup.find_all(), bailing out.  Feel free to try this script again!")
+			f = open(filename_stop, "w")
+			f.close()
 			break
 
 		if current_page == last_page:
 			logging.info("Yeah, we're on the last page.  Full stop.")
+			f = open(filename_stop, "w")
+			f.close()
 			break
 
 		#
