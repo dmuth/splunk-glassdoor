@@ -184,13 +184,43 @@
         <option name="wordcloud_app.wordcloud.useColors">true</option>
       </viz>
     </panel>
+    <panel>
+      <title>Tag Cloud for Advice</title>
+      <viz type="wordcloud_app.wordcloud">
+        <search>
+          <query>index=main index=main business="$business$"
+| eval words=split(advice_to_management, " ")  | mvexpand words | table words
+| cleantext textfield=words keep_orig=f remove_stopwords=t term_min_len=$min_word_length$
+| stats count by words 
+| search count &gt;= $min_word_count$
+| sort -count | head $max_num_tags$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="wordcloud_app.wordcloud.alignmentMode">hovert</option>
+        <option name="wordcloud_app.wordcloud.backgroundColor">#222</option>
+        <option name="wordcloud_app.wordcloud.colorBy">colorMode</option>
+        <option name="wordcloud_app.wordcloud.colorMode">categorical</option>
+        <option name="wordcloud_app.wordcloud.maxColor">#3fc77a</option>
+        <option name="wordcloud_app.wordcloud.minColor">#d93f3c</option>
+        <option name="wordcloud_app.wordcloud.numOfBins">8</option>
+        <option name="wordcloud_app.wordcloud.splunkTastic">false</option>
+        <option name="wordcloud_app.wordcloud.useColors">true</option>
+      </viz>
+    </panel>
   </row>
   <row>
     <panel>
       <title>Most Recent Pros</title>
       <table>
         <search>
-          <query>index=main business="$business$" rating &gt;= 4 | eval Date=strftime(_time, "%Y-%m-%d") | head 5 | table Date pros | rename pros as Pros</query>
+          <query>index=main business="$business$" rating &gt;= 4 | eval Date=strftime(_time, "%Y-%m-%d") | head 10 | table Date pros | rename pros as Pros</query>
           <earliest>0</earliest>
           <latest></latest>
           <sampleRatio>1</sampleRatio>
@@ -209,7 +239,29 @@
       <title>Most Recent Cons</title>
       <table>
         <search>
-          <query>index=main business="$business$" rating &lt;= 2 | eval Date=strftime(_time, "%Y-%m-%d") | head 5 | table Date cons | rename cons as Cons</query>
+          <query>index=main business="$business$" rating &lt;= 2 | eval Date=strftime(_time, "%Y-%m-%d") | head 10 | table Date cons | rename cons as Cons</query>
+          <earliest>0</earliest>
+          <latest></latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Most Recent Advice</title>
+      <table>
+        <search>
+          <query>index=main business="$business$" 
+| eval len_advice_to_management=len(advice_to_management) 
+| search len_advice_to_management &gt; 3
+| eval Date=strftime(_time, "%Y-%m-%d") | head 10 | table Date advice_to_management | rename advice_to_management as Advice</query>
           <earliest>0</earliest>
           <latest></latest>
           <sampleRatio>1</sampleRatio>
