@@ -33,7 +33,7 @@ app I built to effortlessly run Splunk in a Docker container.
 
 ## Running The App
 
-- `SPLUNK_START_ARGS=--accept-license bash <(curl -s https://raw.githubusercontent.com/dmuth/splunk-yelp-reviews/master/go.sh) ./urls.txt`
+- `SPLUNK_START_ARGS=--accept-license bash <(curl -s https://raw.githubusercontent.com/dmuth/splunk-glassdoor/master/go.sh ) ./urls.txt`
    - The file `urls.txt` should contain one URL per line, and each URL should be a business's review page from Glassdoor.
    - Since some businesees can have thousands of reviews, this script will pick up where it left off if interrupted.
    - This grabs the HTML from review pages uses <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">Beautiful Soup</a> to parse the reviews and then export them to the `logs/` directory.  I looked into using Glassdoor's API, but when I went to the signup page, it was a broken page that was mostly blank.  So I tried 🤷.
