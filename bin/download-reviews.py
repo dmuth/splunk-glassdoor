@@ -70,7 +70,12 @@ def parseHtml(soup):
 		# GMT, and I don't think I really need anything more specific
 		# than a date for these purposes.
 		#
-		date = review.find_all("time")[0].text
+		try:
+			date = review.find_all("time")[0].text
+		except IndexError:
+			logging.info("Looks like this review doesn't have a timestamp. Probably a Featured Review.  That's fine, but we can't use it.  Skipping!")
+			continue
+
 		date_time_obj = datetime.datetime.strptime(date, '%b %d, %Y')
 		row["date"] = date_time_obj.strftime("%Y-%m-%dT%H:%M:%S.000")
 
