@@ -70,6 +70,10 @@ Also:
 
 ## Bugs
 
+- Excessive CPU Usage
+   - In Docker on OS/X, if you have thousands and thousands of files, Splunk persistently uses like 70% of the CPU.  Not good.  I think it's more a Docker thing than Splunk thing, but I could write a workaround as follows:
+      - Download reviews to a SQLite database with SQLAlchemy
+      - When downloads are done, dump all reviews for that business to a single JSON file in the logs/ directory
 - Sometimes you'll see a yellow exclamation point with the text "Field 'words' does not exist in the data" on the Advice Tag Cloud.  The underlying search appears to be executing normally, so I can trying to sort this one out.
 
 
