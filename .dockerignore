@@ -3,5 +3,8 @@
 
 splunk-data/
 
-logs/
+#
+# Ignore all logs-related directories
+#
+logs*
 
